@@ -1,0 +1,107 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function uid() { return request.auth.uid; }
+    function circlePath(cid) { return /databases/$(database)/documents/circles/$(cid); }
+    function isMember(cid) { return signedIn() && uid() in get(circlePath(cid)).data.memberIds; }
+    function isAdmin(cid) { return signedIn() && uid() in get(circlePath(cid)).data.adminIds; }
+    function changedOnly(keys) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys); }
+
+    // Invite links: whoever knows the code can look up which circle it belongs to.
+    match /invites/{code} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if signedIn()
+        && uid() in getAfter(circlePath(request.resource.data.circleId)).data.adminIds;
+      allow update: if isAdmin(resource.data.circleId)
+        && request.resource.data.circleId == resource.data.circleId;
+      allow delete: if isAdmin(resource.data.circleId);
+    }
+
+    match /circles/{cid} {
+      allow read: if signedIn() && uid() in resource.data.memberIds;
+
+      allow create: if signedIn()
+        && request.resource.data.createdBy == uid()
+        && request.resource.data.memberIds == [uid()]
+        && request.resource.data.adminIds == [uid()];
+
+      allow update: if signedIn() && (
+        // Admins manage the circle, but there is always at least one admin and admins are members.
+        ( uid() in resource.data.adminIds
+          && request.resource.data.adminIds.size() > 0
+          && request.resource.data.memberIds.hasAll(request.resource.data.adminIds)
+          && request.resource.data.createdBy == resource.data.createdBy )
+        ||
+        // Members: own profile, the schedule pointer, and leaving.
+        ( uid() in resource.data.memberIds
+          && changedOnly(['members', 'nextDrawAt', 'memberIds'])
+          && ( request.resource.data.memberIds == resource.data.memberIds
+               || request.resource.data.memberIds == resource.data.memberIds.removeAll([uid()]) )
+          && request.resource.data.members.diff(resource.data.members).affectedKeys().hasOnly([uid()]) )
+        ||
+        // Joining with a valid invite code.
+        ( !(uid() in resource.data.memberIds)
+          && resource.data.memberIds.size() < 50
+          && request.resource.data.joinCode == resource.data.inviteCode
+          && request.resource.data.memberIds == resource.data.memberIds.concat([uid()])
+          && changedOnly(['memberIds', 'members', 'joinCode'])
+          && request.resource.data.members.diff(resource.data.members).affectedKeys().hasOnly([uid()]) )
+      );
+
+      allow delete: if signedIn() && uid() in resource.data.adminIds;
+
+      // Public part of an idea: who added it, its status and its practical attributes.
+      // Never contains what the idea actually is.
+      match /ideas/{iid} {
+        allow read: if isMember(cid);
+        allow create: if isMember(cid)
+          && request.resource.data.authorId == uid()
+          && request.resource.data.status == 'pot';
+        allow update: if isMember(cid) && (
+          ( resource.data.authorId == uid() && request.resource.data.authorId == uid() )
+          || changedOnly(['status', 'drawnAt'])
+        );
+        allow delete: if isMember(cid) && (resource.data.authorId == uid() || isAdmin(cid));
+      }
+
+      // Secret part of an idea: title, note, link. Readable by its author,
+      // and by the rest of the circle only once it is visible.
+      match /secrets/{iid} {
+        allow read: if isMember(cid)
+          && (resource.data.authorId == uid() || resource.data.visible == true);
+        allow create: if isMember(cid)
+          && request.resource.data.authorId == uid()
+          && request.resource.data.title is string
+          && request.resource.data.title.size() <= 200;
+        allow update: if isMember(cid) && (
+          ( resource.data.authorId == uid()
+            && request.resource.data.authorId == uid()
+            && request.resource.data.title is string
+            && request.resource.data.title.size() <= 200 )
+          ||
+          // Others can only reveal it, and only once the idea has been drawn.
+          ( changedOnly(['visible', 'revealedAt'])
+            && request.resource.data.visible == true
+            && ( get(/databases/$(database)/documents/circles/$(cid)/ideas/$(iid)).data.status != 'pot'
+                 || getAfter(/databases/$(database)/documents/circles/$(cid)/ideas/$(iid)).data.status != 'pot' ) )
+        );
+        allow delete: if isMember(cid)
+          && (resource == null || resource.data.authorId == uid() || isAdmin(cid));
+      }
+
+      // The log of everything that was drawn.
+      match /draws/{did} {
+        allow read: if isMember(cid);
+        allow create: if isMember(cid) && request.resource.data.drawnBy == uid();
+        allow update: if isMember(cid)
+          && request.resource.data.ideaId == resource.data.ideaId
+          && request.resource.data.authorId == resource.data.authorId;
+        allow delete: if isAdmin(cid);
+      }
+    }
+  }
+}
