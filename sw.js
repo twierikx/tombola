@@ -1,6 +1,6 @@
 // Service worker: makes Tómbola installable and lets the shell open without a connection.
-// Network first, so a new version is picked up as soon as there is a connection.
-const CACHE = 'tombola-v1';
+// Network first and always revalidated, so a new version is picked up right away.
+const CACHE = 'tombola-v2';
 const SHELL = [
   './', 'index.html', 'css/style.css', 'manifest.webmanifest',
   'js/app.js', 'js/i18n.js', 'js/draw.js', 'js/config.js', 'js/backend-firebase.js', 'js/backend-demo.js',
@@ -23,7 +23,7 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
   event.respondWith(
-    fetch(req)
+    fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' })
       .then((res) => {
         if (res.ok) {
           const copy = res.clone();
