@@ -300,6 +300,30 @@ const S = {
     en: 'Permanently delete this circle with all its ideas and its log? This cannot be undone.',
     es: 'Eliminar para siempre el círculo con todas sus ideas y su historial. No se puede deshacer.',
   },
+  about: { nl: 'Over Tómbola', en: 'About Tómbola', es: 'Acerca de Tómbola' },
+  aboutIdea: {
+    nl: 'Tómbola is gebaseerd op de date randomizer van Anne Margot Ridderikhoff. Deze app is slechts een kleine uitbreiding van haar oorspronkelijke idee.',
+    en: 'Tómbola is based on the date randomizer by Anne Margot Ridderikhoff. This app is only a small extension of her original idea.',
+    es: 'Tómbola nace del date randomizer de Anne Margot Ridderikhoff. Esta app es solo una pequeña ampliación de su idea original.',
+  },
+  aboutRights: {
+    nl: 'De auteursrechten liggen bij Anne Margot Ridderikhoff.',
+    en: 'The copyright belongs to Anne Margot Ridderikhoff.',
+    es: 'Los derechos de autor pertenecen a Anne Margot Ridderikhoff.',
+  },
+  aboutApp: { nl: 'Als app op je telefoon', en: 'As an app on your phone', es: 'Como app en tu móvil' },
+  aboutAppHint: {
+    nl: 'Open deze pagina in Chrome op je Android-telefoon, tik op het menu met de drie puntjes en kies "App installeren" of "Toevoegen aan startscherm".',
+    en: 'Open this page in Chrome on your Android phone, tap the three-dot menu and choose "Install app" or "Add to Home screen".',
+    es: 'Abre esta página en Chrome en tu móvil Android, toca el menú de los tres puntos y elige "Instalar aplicación" o "Añadir a pantalla de inicio".',
+  },
+  aboutInstalled: {
+    nl: 'Tómbola is op dit toestel geïnstalleerd.',
+    en: 'Tómbola is installed on this device.',
+    es: 'Tómbola está instalada en este dispositivo.',
+  },
+  install: { nl: 'App installeren', en: 'Install app', es: 'Instalar la app' },
+  back: { nl: 'Terug', en: 'Back', es: 'Volver' },
   demoBanner: {
     nl: 'Demo: niets wordt opgeslagen.',
     en: 'Demo: nothing is saved.',
@@ -307,7 +331,7 @@ const S = {
   },
 };
 
-let lang = 'nl';
+let lang = 'es';
 
 export function setLang(l) {
   lang = LANGS[l] ? l : 'en';
@@ -321,8 +345,7 @@ export function detectLang() {
     const saved = localStorage.getItem('tombola.lang');
     if (saved && LANGS[saved]) return saved;
   } catch {}
-  const nav = (navigator.language || 'en').slice(0, 2).toLowerCase();
-  return LANGS[nav] ? nav : 'en';
+  return 'es';
 }
 
 export function t(key, vars) {

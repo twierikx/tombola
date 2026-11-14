@@ -17,6 +17,7 @@ const S = {
   drawUI: { open: false, filters: {}, surprise: false },
   invite: undefined,
   showDrawn: false,
+  installEvt: null,
 };
 let unsubCircles = null;
 let unsubCircle = null;
@@ -145,6 +146,7 @@ function parseRoute() {
   const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
   if (parts[0] === 'c' && parts[1]) return { name: 'circle', cid: parts[1], tab: ['draw', 'ideas', 'log', 'circle'].includes(parts[2]) ? parts[2] : 'draw' };
   if (parts[0] === 'join' && parts[1]) return { name: 'join', code: parts[1] };
+  if (parts[0] === 'about') return { name: 'about' };
   return { name: 'home' };
 }
 
@@ -256,7 +258,8 @@ function render() {
 }
 
 function view() {
-  if (S.user === undefined) return `<div class="login"><p class="muted">${t('loading')}</p></div>`;
+  if (S.user === undefined && S.route.name !== 'about') return `<div class="login"><p class="muted">${t('loading')}</p></div>`;
+  if (S.route.name === 'about') return shell(viewAbout(), false);
   if (!S.user) return viewLogin();
   if (S.route.name === 'join') return shell(viewJoin(), false);
   if (S.route.name === 'circle') return viewCircle();
@@ -289,8 +292,27 @@ function viewLogin() {
       <p class="muted">${invited ? t('invitedHint') : t('pitch')}</p>
     </div>
     <button class="btn google" data-action="signIn">${GOOGLE} ${t('signIn')}</button>
+    ${S.installEvt ? `<button class="btn btn-s" data-action="install">${t('install')}</button>` : ''}
     ${langButtons()}
+    <a class="linkbtn small" href="#/about">${t('about')}</a>
   </main>`;
+}
+
+function viewAbout() {
+  const standalone = matchMedia('(display-mode: standalone)').matches;
+  return `<article class="about stack-l">
+    <p><button class="linkbtn small" data-action="back">${icon('back', 'icon-s')} ${t('back')}</button></p>
+    <h1>${t('about')}</h1>
+    <p class="about-lead">${t('aboutIdea')}</p>
+    <p>© Anne Margot Ridderikhoff<br><span class="muted">${t('aboutRights')}</span></p>
+    <section class="card stack">
+      <h2>${t('aboutApp')}</h2>
+      ${standalone ? `<p class="muted">${t('aboutInstalled')}</p>`
+        : S.installEvt ? `<div><button class="btn btn-ink" data-action="install">${t('install')}</button></div>`
+        : `<p class="muted">${t('aboutAppHint')}</p>`}
+    </section>
+    ${langButtons()}
+  </article>`;
 }
 
 function shell(content, nav) {
@@ -300,7 +322,7 @@ function shell(content, nav) {
       <a class="wordmark" href="#/" data-action="home" aria-label="Tómbola">${LOGO}<span class="wm-text">Tómbola</span></a>
       ${nav && c ? `<button class="circle-switch" data-action="home" title="${t('allCircles')}"><span>${esc(c.emoji || '🎟️')}</span><span class="name">${esc(c.name)}</span>${icon('chev', 'icon-s')}</button>` : ''}
       <span class="grow"></span>
-      <button class="avatar-btn" data-action="menu" aria-label="${esc(S.user.name)}">${userAvatar()}</button>
+      ${S.user ? `<button class="avatar-btn" data-action="menu" aria-label="${esc(S.user.name)}">${userAvatar()}</button>` : ''}
     </header>`;
   const side = nav ? `<aside class="side">${header}
       <nav class="tabs" aria-label="Tómbola">${tabs.map(([id, ic, label]) =>
@@ -310,7 +332,7 @@ function shell(content, nav) {
   return `<div class="shell ${nav ? 'has-nav' : ''}">
     ${side}
     <main class="main ${nav ? '' : 'no-nav'}">
-      ${backend.demo ? `<p class="banner" style="margin-bottom:12px">${t('demoBanner')}</p>` : ''}
+      ${backend?.demo ? `<p class="banner" style="margin-bottom:12px">${t('demoBanner')}</p>` : ''}
       ${content}
     </main>
   </div>`;
@@ -332,7 +354,8 @@ function viewHome() {
         <span class="grow"><h2>${esc(c.name)}</h2><span class="muted small">${c.memberIds.length === 1 ? t('member1') : t('members', { n: c.memberIds.length })}</span></span>
       </button>`).join('')}
     </div>
-    <div style="margin-top:18px"><button class="btn" data-action="newCircle">${icon('plus', 'icon-s')} ${t('newCircle')}</button></div>`;
+    <div style="margin-top:18px"><button class="btn" data-action="newCircle">${icon('plus', 'icon-s')} ${t('newCircle')}</button></div>
+    <p style="margin-top:40px"><a class="linkbtn small" href="#/about">${t('about')}</a></p>`;
 }
 
 function viewJoin() {
@@ -669,6 +692,8 @@ function sheetBody(sh) {
     return `${sheetHead(esc(S.user.name))}
       <div class="stack-l">
         <div class="field"><span class="label">${t('language')}</span>${langButtons()}</div>
+        ${S.installEvt ? `<button class="btn btn-ink" data-action="install">${t('install')}</button>` : ''}
+        <a class="btn" href="#/about">${t('about')}</a>
         <button class="btn" data-action="signOut">${t('signOut')}</button>
       </div>`;
   }
@@ -829,6 +854,15 @@ const actions = {
   signOut: async () => { closeSheet(); await backend.signOut(); },
   lang: (el) => { setLang(el.dataset.lang); store.set('tombola.lang', el.dataset.lang); render(); renderSheet(); },
   menu: () => openSheet({ type: 'menu' }),
+  back: () => { if (history.length > 1) history.back(); else go('#/'); },
+  install: async () => {
+    const ev = S.installEvt;
+    if (!ev) return;
+    S.installEvt = null;
+    ev.prompt();
+    await ev.userChoice.catch(() => {});
+    render(); renderSheet();
+  },
   home: (el, ev) => { ev.preventDefault(); redirected = true; go('#/'); },
   openCircle: (el) => go(`#/c/${el.dataset.id}/draw`),
   scrim: (el, ev) => { if (ev.target === el) closeSheet(); },
@@ -1032,6 +1066,11 @@ document.addEventListener('keydown', (ev) => {
   else if (S.overlay?.stage === 'reveal') actions.closeOverlay();
 });
 window.addEventListener('hashchange', onRoute);
+window.addEventListener('beforeinstallprompt', (ev) => { ev.preventDefault(); S.installEvt = ev; render(); });
+window.addEventListener('appinstalled', () => { S.installEvt = null; render(); });
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  navigator.serviceWorker.register('./sw.js').catch((err) => console.warn('[tombola] service worker', err));
+}
 
 // ---------------------------------------------------------------- boot
 async function boot() {

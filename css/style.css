@@ -332,6 +332,12 @@ button.tk { cursor: pointer; }
 .langs button { border: 0; background: none; padding: 8px 10px; border-radius: 999px; color: var(--ink-2); font-weight: 600; font-size: 0.875rem; }
 .langs button[aria-pressed='true'] { background: var(--surface-2); color: var(--ink); }
 
+/* ---------- about ---------- */
+.about { max-width: 34rem; padding-top: 8px; }
+.about h1 { font-size: 2.25rem; }
+.about-lead { font: 600 1.25rem/1.4 var(--display); }
+.about .linkbtn { display: inline-flex; align-items: center; gap: 4px; text-decoration: none; }
+
 /* ---------- sheets ---------- */
 .scrim { position: fixed; inset: 0; z-index: 20; background: rgba(20, 19, 43, .5); display: grid; align-items: end; animation: fade .15s ease; }
 .sheet {
