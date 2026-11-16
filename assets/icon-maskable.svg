@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="#1b1a3a"/>
-  <g transform="translate(256 256) scale(.78) translate(-256 -256) rotate(-12 256 256)">
-    <path d="M84 168a40 40 0 0 1 40-40h264a40 40 0 0 1 40 40v44a44 44 0 0 0 0 88v44a40 40 0 0 1-40 40H124a40 40 0 0 1-40-40v-44a44 44 0 0 0 0-88Z" fill="#e0245e"/>
-    <path d="M196 140v232" stroke="#fff" stroke-width="12" stroke-dasharray="20 18" opacity=".8"/>
-    <path d="m312 190 21 43 47 6-34 33 9 47-43-23-43 23 9-47-34-33 47-6Z" fill="#fff"/>
+  <rect width="512" height="512" fill="#93C47D"/>
+  <g transform="translate(256 256) scale(.74) translate(-256 -256) rotate(-12 256 256)">
+    <path d="M100 176a36 36 0 0 1 36-36h240a36 36 0 0 1 36 36v40a40 40 0 0 0 0 80v40a36 36 0 0 1-36 36H136a36 36 0 0 1-36-36v-40a40 40 0 0 0 0-80Z" fill="#fff"/>
+    <path d="M200 152v208" stroke="#93C47D" stroke-width="11" stroke-dasharray="18 16"/>
+    <path d="m306 198 19 39 43 6-31 30 7 43-38-20-38 20 7-43-31-30 43-6Z" fill="#93C47D"/>
   </g>
 </svg>

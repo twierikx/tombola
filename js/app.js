@@ -27,8 +27,9 @@ let autoBusy = false;
 let redirected = false;
 
 const COLORS = [
-  ['#e0245e', '#fff'], ['#ffb703', '#1b1a3a'], ['#0fa3a3', '#fff'], ['#6c4cf1', '#fff'],
-  ['#ff7a3d', '#1b1a3a'], ['#2f7df6', '#fff'], ['#2fb36d', '#1b1a3a'], ['#c13fd6', '#fff'],
+  // Same family as the house green #93C47D (the light row of the Google Docs palette).
+  ['#93c47d', '#000'], ['#f6b26b', '#000'], ['#6fa8dc', '#000'], ['#e06666', '#000'],
+  ['#8e7cc3', '#000'], ['#ffd966', '#000'], ['#76a5af', '#000'], ['#c27ba0', '#000'],
 ];
 const EMOJIS = ['🎟️', '💘', '🥂', '🌮', '🏔️', '🎲', '🪩', '🌴', '🎬', '🚲', '☕', '🐙'];
 const DEFAULT_SETTINGS = {
@@ -60,7 +61,7 @@ const I = {
   star: '<path d="m12 2 3.090 6.260L22 9.270l-5 4.870 1.180 6.880L12 17.770l-6.180 3.250L7 14.140 2 9.270l6.910-1.010L12 2Z"/>',
 };
 const icon = (name, cls) => svg(I[name], cls, name === 'star');
-const LOGO = `<svg viewBox="0 0 32 32" aria-hidden="true"><g transform="rotate(-12 16 16)"><path d="M4 9a3 3 0 0 1 3-3h18a3 3 0 0 1 3 3v3.500a3.500 3.500 0 0 0 0 7V23a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3v-3.500a3.500 3.500 0 0 0 0-7Z" fill="var(--pink)"/><path d="M12 7v18" stroke="#fff" stroke-width="2" stroke-dasharray="2.500 2.500" opacity=".8"/><path d="m19.500 11.500 1.400 2.900 3.100.4-2.300 2.200.6 3.100-2.800-1.500-2.800 1.500.6-3.100-2.300-2.200 3.100-.4Z" fill="#fff"/></g></svg>`;
+const LOGO = `<svg viewBox="0 0 32 32" aria-hidden="true"><g transform="rotate(-12 16 16)"><path d="M4 9a3 3 0 0 1 3-3h18a3 3 0 0 1 3 3v3.500a3.500 3.500 0 0 0 0 7V23a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3v-3.500a3.500 3.500 0 0 0 0-7Z" fill="var(--green)"/><path d="M12 7v18" stroke="#fff" stroke-width="2" stroke-dasharray="2.500 2.500" opacity=".8"/><path d="m19.500 11.500 1.400 2.900 3.100.4-2.300 2.200.6 3.100-2.800-1.500-2.800 1.500.6-3.100-2.300-2.200 3.100-.4Z" fill="#fff"/></g></svg>`;
 const GOOGLE = `<svg class="icon" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.500c3.540 0 6.710 1.220 9.210 3.600l6.850-6.850C35.900 2.380 30.470 0 24 0 14.620 0 6.510 5.380 2.560 13.220l7.980 6.190C12.430 13.720 17.740 9.500 24 9.500z"/><path fill="#4285F4" d="M46.980 24.550c0-1.570-.150-3.090-.380-4.550H24v9.020h12.940c-.580 2.960-2.260 5.480-4.780 7.180l7.730 6c4.510-4.180 7.090-10.360 7.090-17.650z"/><path fill="#FBBC05" d="M10.530 28.590c-.480-1.450-.760-2.990-.760-4.590s.270-3.140.760-4.590l-7.980-6.190C.920 16.460 0 20.120 0 24c0 3.880.920 7.540 2.560 10.780l7.970-6.190z"/><path fill="#34A853" d="M24 48c6.480 0 11.930-2.130 15.890-5.810l-7.730-6c-2.150 1.450-4.920 2.300-8.160 2.300-6.260 0-11.570-4.220-13.470-9.910l-7.980 6.190C6.510 42.620 14.620 48 24 48z"/></svg>`;
 
 const me = () => S.user?.uid;
@@ -94,7 +95,7 @@ function avatar(uid, cls = '') {
 function userAvatar() {
   const u = S.user;
   const inner = u.photo ? `<img src="${esc(u.photo)}" alt="" referrerpolicy="no-referrer">` : esc((u.name || '?').charAt(0).toUpperCase());
-  return `<span class="avatar" style="--c:var(--ink);--ci:var(--bg)">${inner}</span>`;
+  return `<span class="avatar" style="--c:var(--green-deep);--ci:var(--bg)">${inner}</span>`;
 }
 
 function metaBits(idea) {

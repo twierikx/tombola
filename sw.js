@@ -1,6 +1,6 @@
 // Service worker: makes Tómbola installable and lets the shell open without a connection.
 // Network first and always revalidated, so a new version is picked up right away.
-const CACHE = 'tombola-v2';
+const CACHE = 'tombola-v3';
 const SHELL = [
   './', 'index.html', 'css/style.css', 'manifest.webmanifest',
   'js/app.js', 'js/i18n.js', 'js/draw.js', 'js/config.js', 'js/backend-firebase.js', 'js/backend-demo.js',
