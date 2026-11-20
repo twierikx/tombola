@@ -39,3 +39,5 @@ Statische site (GitHub Pages), geen build-stap. Google-login en opslag via Fireb
 De titel, notitie en link van een idee staan in een apart document (`secrets`) dat volgens
 `firestore.rules` alleen de bedenker kan lezen, tot het idee getrokken of onthuld is.
 De regels staan in de Firebase-console onder Firestore → Rules en moeten gelijk zijn aan `firestore.rules`.
+Ritmo (https://twierikx.github.io/ritmo/) gebruikt hetzelfde Firebase-project; het stuk `match /ritmo/...` in
+`firestore.rules` hoort bij Ritmo.

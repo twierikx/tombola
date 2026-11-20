@@ -10,6 +10,15 @@ service cloud.firestore {
     function isAdmin(cid) { return signedIn() && uid() in get(circlePath(cid)).data.adminIds; }
     function changedOnly(keys) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys); }
 
+    // Ritmo (twierikx.github.io/ritmo) shares this Firebase project.
+    // Everyone reads and writes only their own schedule and log.
+    match /ritmo/{userId} {
+      allow read, write: if signedIn() && uid() == userId;
+    }
+    match /ritmo/{userId}/{document=**} {
+      allow read, write: if signedIn() && uid() == userId;
+    }
+
     // Invite links: whoever knows the code can look up which circle it belongs to.
     match /invites/{code} {
       allow get: if signedIn();
